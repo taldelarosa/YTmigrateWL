@@ -25,8 +25,9 @@ function prompt(question) {
 }
 
 function generatePlaylistName() {
-  // Use a custom playlist name
-  return "Watch Later 7";
+  const today = new Date();
+  const dateString = today.toISOString().split("T")[0]; // YYYY-MM-DD
+  return `WL_${dateString}`;
 }
 
 async function main() {

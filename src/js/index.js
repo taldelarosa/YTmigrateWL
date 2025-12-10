@@ -175,8 +175,6 @@ async function main() {
     }
 
     // Step 4: Ask for confirmation to clear the ENTIRE 'Watch Later' playlist.
-    // COMMENTED OUT FOR TESTING - Just creating the new playlist
-    /*
     const confirmation = await prompt(
       `\nDo you want to clear your ENTIRE 'Watch Later' playlist now? (y/n): `
     );
@@ -190,7 +188,6 @@ async function main() {
       // Step 5: If confirmed, clear the playlist.
       await clearWatchLaterPlaylist(youtube);
     }
-    */
 
     console.log("\n✅ --- SCRIPT COMPLETE --- ✅");
   } catch (error) {

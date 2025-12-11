@@ -3,7 +3,7 @@
   "dependencies": {
     "csv-parser": "^3.2.0",
     "dotenv": "^17.2.2",
-    "youtubei.js": "^15.1.1"
+    "youtubei.js": "^16.0.1"
   },
   "description": "A tool to export and manage your YouTube 'Watch Later' playlist.",
   "keywords": [

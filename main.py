@@ -16,6 +16,9 @@ def main():
     csv_filename = os.getenv("CSV_FILENAME", "watch_later_public.csv")
     csv_filename_private = os.getenv("CSV_FILENAME_PRIVATE", "watch_later_private.csv")
     browser = os.getenv("BROWSER", "").lower()
+    
+    # Check if user wants CSV only mode
+    csv_only = os.getenv("CSV_ONLY", "false").lower() in ["true", "1", "yes"]
 
     # --- Validate Browser and Get Optional Profile Path ---
     supported_browsers = ["firefox", "chrome"]
@@ -44,6 +47,14 @@ def main():
             output_filename=csv_filename,
             private_output_filename=csv_filename_private,
         )
+        
+        if csv_only:
+            print("\n✅ CSV files generated successfully!")
+            print(f"   - Public videos: {csv_filename}")
+            print(f"   - Private videos: {csv_filename_private}")
+            print("\n⚠️  CSV_ONLY mode: Skipping playlist creation and deletion.")
+            print("   To create playlists, set CSV_ONLY=false in .env and run the Node.js script.")
+            sys.exit(0)
 
     except KeyboardInterrupt:
         print("\n\nOperation cancelled by user. Exiting gracefully.")

@@ -96,6 +96,14 @@ By default, the script will attempt to use the **default profile** for your sele
 
 Leave the variable for the browser you are *not* using blank.
 
+### `CSV_ONLY` (Optional)
+
+Set this to `"true"` if you only want to generate the CSV files without creating playlists or deleting videos from Watch Later.
+
+* **Supported values:** `"true"` or `"false"` (default).
+* When set to `"true"`, the Python script will generate the CSV files and exit. The Node.js migration script will be skipped.
+* This is useful if you just want to backup/export your Watch Later list without making any changes to your YouTube account.
+
 ## 3. Usage
 
 The entire workflow can be run with a single command.
@@ -112,9 +120,16 @@ This command executes the two main stages in sequence:
 
 The Python script (`fetch-videos`) runs first. It securely uses your browser's cookies to access your "Watch Later" playlist and exports all video details into CSV files (e.g., `watch_later_public.csv`).
 
+**CSV-Only Mode:** If you only want to generate CSV files without creating playlists or modifying your Watch Later, you can either:
+
+* Set `CSV_ONLY="true"` in your `.env` file and run `pnpm start`
+* Or run the quick command: `pnpm run csv-only` (or `npm run csv-only`)
+
+This is perfect for backing up your Watch Later list without making any changes to your YouTube account.
+
 ### Stage 2: Migrate Videos & Clear Playlist
 
-Next, the interactive Node.js script (`migrate-videos`) runs. It will guide you through the following prompts:
+Next, the interactive Node.js script (`migrate-videos`) runs (unless `CSV_ONLY` is enabled). It will guide you through the following prompts:
 
 1. **Paste Your YouTube Cookie:** The script will then ask you to paste a cookie string. This is required for authentication to your account.
 2. **Create a New Playlist:** It will use the generated CSV file to create a new, private playlist on your YouTube account named `WL_YYYY-MM-DD`.

@@ -19,7 +19,8 @@
   "scripts": {
     "fetch-videos": "python3 main.py",
     "migrate-videos": "node src/js/index.js",
-    "start": "npm run fetch-videos && npm run migrate-videos"
+    "start": "npm run fetch-videos && npm run migrate-videos",
+    "csv-only": "CSV_ONLY=true python3 main.py"
   },
   "type": "module",
   "version": "0.1.0"

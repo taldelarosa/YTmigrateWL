@@ -168,24 +168,33 @@ async function main() {
     }
 
     // Step 3: Create the new playlist if there are videos to migrate.
+    let playlistUrl = null;
     if (publicVideoIds.length > 0) {
       const reversedPublicIds = [...publicVideoIds].reverse();
       const playlistName = generatePlaylistName();
-      await createPlaylistWithVideos(youtube, playlistName, reversedPublicIds);
+      playlistUrl = await createPlaylistWithVideos(youtube, playlistName, reversedPublicIds);
     }
 
-    // Step 4: Ask for confirmation to clear the ENTIRE 'Watch Later' playlist.
+    // Step 4: Show the playlist link and ask for confirmation to delete videos from Watch Later.
+    if (playlistUrl) {
+      console.log(`\n${'='.repeat(60)}`);
+      console.log(`✅ NEW PLAYLIST CREATED!`);
+      console.log(`🔗 ${playlistUrl}`);
+      console.log(`${'='.repeat(60)}`);
+    }
+    
     const confirmation = await prompt(
-      `\nDo you want to clear your ENTIRE 'Watch Later' playlist now? (y/n): `
+      `\n⚠️  Do you want to DELETE videos from your 'Watch Later' playlist now? (y/n): `
     );
 
     const affirmativeAnswers = ["yes", "y"];
     if (!affirmativeAnswers.includes(confirmation.toLowerCase())) {
       console.log(
-        "Skipping the 'Watch Later' playlist clearing step."
+        "\n✅ Skipping deletion. Your 'Watch Later' playlist remains unchanged."
       );
     } else {
       // Step 5: If confirmed, clear the playlist.
+      console.log("\n🗑️  Starting deletion of videos from 'Watch Later' playlist...");
       await clearWatchLaterPlaylist(youtube);
     }
 

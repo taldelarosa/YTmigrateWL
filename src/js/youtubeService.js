@@ -274,6 +274,7 @@ export async function switchToChannel(youtube, channelName, cookie) {
  * @param {Innertube} youtube - An authenticated Innertube instance.
  * @param {string} playlistName - The name of the new playlist.
  * @param {string[]} videoIds - An array of video IDs to add.
+ * @returns {Promise<string>} The URL of the created playlist.
  */
 export async function createPlaylistWithVideos(
   youtube,
@@ -295,9 +296,11 @@ export async function createPlaylistWithVideos(
     const playlistId = playlistDetails.playlist_id;
     console.log(`\nExtracted playlist_id: ${playlistId}`);
 
+    const playlistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
     console.log(`\n✅ Playlist "${playlistName}" created successfully.`);
     console.log(`✅ Added ${videoIds.length} videos to the new playlist.`);
-    console.log(`\n🔗 View it here: https://www.youtube.com/playlist?list=${playlistId}`);
+    
+    return playlistUrl;
   } catch (error) {
     console.error(`\n❌ ERROR creating playlist:`);
     console.error('Error message:', error.message);

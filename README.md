@@ -1,20 +1,21 @@
-# YTmigrateWL – YouTube 'Watch Later' Exporter & Cleaner
+# YTmigrateWL – YouTube Playlist Exporter & Manager
 
-RepoScribe is a powerful two-step tool designed to help you rescue, archive, and manage your YouTube "Watch Later" playlist. If your "Watch Later" has become an unmanageable backlog of hundreds or thousands of videos, this tool is for you.
+RepoScribe is a powerful two-step tool designed to help you rescue, archive, and manage your YouTube playlists. If your "Watch Later" has become an unmanageable backlog of hundreds or thousands of videos, or you want to export and backup multiple playlists, this tool is for you.
 
 It allows you to:
 
-1. **Export** your entire "Watch Later" playlist—including titles and IDs—into clean, usable CSV files using your browser's cookies.
-2. **Archive** these videos by creating a new, timestamped, private playlist on your YouTube account.
+1. **Export** any number of your YouTube playlists—including titles and IDs—into clean, usable CSV files using your browser's cookies.
+2. **Archive** these videos by creating new, timestamped, private playlists on your YouTube account.
 3. **Securely Clear** your entire "Watch Later" playlist, giving you a fresh start.
 
 ## Why Does This Tool Exist?
 
-The native YouTube "Watch Later" playlist is a black box. It lacks essential features for management:
+The native YouTube playlist management is a black box. It lacks essential features:
 
-* There is no native "Export" functionality.
+* There is no native "Export" functionality for playlists.
 * You cannot sort, filter, or easily manage videos in bulk.
 * Clearing a large playlist requires deleting videos one by one, which is incredibly tedious.
+* No easy way to backup multiple playlists at once.
 
 This tool solves these problems by using a robust Python script to extract the data and an interactive Node.js script to manage your playlists via the YouTube API.
 
@@ -118,14 +119,21 @@ This command executes the two main stages in sequence:
 
 ### Stage 1: Fetch Video List
 
-The Python script (`fetch-videos`) runs first. It securely uses your browser's cookies to access your "Watch Later" playlist and exports all video details into CSV files (e.g., `watch_later_public.csv`).
+The Python script (`fetch-videos`) runs first. It securely uses your browser's cookies to access your playlists and exports all video details into CSV files.
 
-**CSV-Only Mode:** If you only want to generate CSV files without creating playlists or modifying your Watch Later, you can either:
+**Interactive Playlist Selection:** When you run the script, you'll be presented with a list of all your playlists:
+* You can select **Watch Later** (default - just press Enter)
+* You can select **multiple playlists** by entering comma-separated numbers (e.g., `0,1,3`)
+* You can select **all playlists** by typing `all`
+
+Each selected playlist will be exported to separate CSV files named after the playlist (e.g., `Watch Later_public.csv`, `My Favorites_public.csv`).
+
+**CSV-Only Mode:** If you only want to generate CSV files without creating playlists or modifying your playlists, you can either:
 
 * Set `CSV_ONLY="true"` in your `.env` file and run `pnpm start`
 * Or run the quick command: `pnpm run csv-only` (or `npm run csv-only`)
 
-This is perfect for backing up your Watch Later list without making any changes to your YouTube account.
+This is perfect for backing up your playlists without making any changes to your YouTube account.
 
 ### Stage 2: Migrate Videos & Clear Playlist
 

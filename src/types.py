@@ -10,3 +10,9 @@ class FlatVideoInfo(TypedDict):
 
 class FlatPlaylistInfo(TypedDict):
     entries: List[Optional[FlatVideoInfo]]
+
+
+class PlaylistBasicInfo(TypedDict):
+    id: str
+    title: str
+    video_count: int

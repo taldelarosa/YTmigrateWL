@@ -1,20 +1,75 @@
 # src/fetcher.py
-from typing import List, Optional, Tuple, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 import yt_dlp
 from tqdm import tqdm
 
 from .logger import YtDlpLogger
-from .types import FlatPlaylistInfo, FlatVideoInfo
+from .types import FlatPlaylistInfo, FlatVideoInfo, PlaylistBasicInfo
 from .writer import CsvWriter
+
+
+def get_user_playlists(
+    browser: str,
+    profile_path: Optional[str],
+) -> List[PlaylistBasicInfo]:
+    """
+    Fetches playlists from the user's channel by extracting the channel URL first.
+    Returns a list of playlist info (id, title, video count).
+    """
+    cookies_arg = (browser, profile_path) if profile_path else (browser,)
+
+    ydl_opts = {
+        "cookiesfrombrowser": cookies_arg,
+        "quiet": True,
+        "logger": YtDlpLogger(),
+        "extract_flat": True,
+        "ignoreerrors": True,
+    }
+
+    try:
+        # First, try to get the user's channel page
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Try to extract channel info from the library page
+            channel_url = "https://www.youtube.com/feed/library"
+            result = ydl.extract_info(channel_url, download=False)
+            
+            if result and "channel_id" in result:
+                channel_id = result["channel_id"]
+                playlists_url = f"https://www.youtube.com/channel/{channel_id}/playlists"
+            else:
+                # Fallback: try the direct playlists URL
+                playlists_url = "https://www.youtube.com/@me/playlists"
+            
+            # Now fetch playlists
+            playlists_result = ydl.extract_info(playlists_url, download=False)
+            
+            if not playlists_result or "entries" not in playlists_result:
+                return []
+
+            playlists = []
+            for entry in playlists_result["entries"]:
+                if entry:
+                    playlist_id = entry.get("id", "")
+                    if playlist_id and playlist_id != "WL":  # Exclude Watch Later as we handle it separately
+                        playlists.append({
+                            "id": playlist_id,
+                            "title": entry.get("title", "Unknown"),
+                            "video_count": entry.get("playlist_count", 0),
+                        })
+            return playlists
+    except Exception as e:
+        print(f"Debug: Could not fetch playlists automatically: {e}")
+        return []
 
 
 def _get_flat_playlist_info(
     browser: str,
     profile_path: Optional[str],
+    playlist_url: str,
 ) -> Tuple[List[FlatVideoInfo], List[FlatVideoInfo]]:
     """
-    Performs a quick, flat extraction of all videos from the 'Watch Later' playlist,
+    Performs a quick, flat extraction of all videos from a playlist,
     partitioning them into valid and private lists.
     """
     # Dynamically build the cookies argument for yt-dlp.
@@ -29,11 +84,9 @@ def _get_flat_playlist_info(
         "extract_flat": True,
     }
 
-    target_url = "https://www.youtube.com/playlist?list=WL"
-
     with yt_dlp.YoutubeDL(ydl_opts_flat) as ydl:
         playlist_info = cast(
-            Optional[FlatPlaylistInfo], ydl.extract_info(target_url, download=False)
+            Optional[FlatPlaylistInfo], ydl.extract_info(playlist_url, download=False)
         )
 
     if not (playlist_info and playlist_info.get("entries")):
@@ -57,13 +110,15 @@ def process_playlist_videos(
     profile_path: Optional[str],
     output_filename: str,
     private_output_filename: str,
+    playlist_url: str = "https://www.youtube.com/playlist?list=WL",
+    playlist_name: str = "Watch Later",
 ):
     """
-    Orchestrates fetching and writing of 'Watch Later' videos, separating
+    Orchestrates fetching and writing of playlist videos, separating
     public and private videos into different files.
     """
-    print("\nStep 1: Fetching and partitioning the list of videos...")
-    public_videos, private_videos = _get_flat_playlist_info(browser, profile_path)
+    print(f"\nStep 1: Fetching and partitioning the list of videos from '{playlist_name}'...")
+    public_videos, private_videos = _get_flat_playlist_info(browser, profile_path, playlist_url)
 
     # --- Process Public Videos ---
     if not public_videos:
